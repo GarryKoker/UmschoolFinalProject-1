@@ -2,7 +2,7 @@ from Handlers.Admin import AdminHandlers
 from Handlers.Common import CommonHandlers
 from Handlers.Owner import OwnerHandlers
 from Handlers.Question_maker import Question_makerHandlers
-import Handlers.GeneralHandlers
+from Handlers import GeneralHandlers
 
 def register_handlers(bot):
     AdminHandlers.register_handlers(bot)

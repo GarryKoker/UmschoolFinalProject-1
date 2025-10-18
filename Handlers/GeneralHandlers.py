@@ -1,3 +1,4 @@
+from telebot import *
 from main import *
 import psycopg2
 

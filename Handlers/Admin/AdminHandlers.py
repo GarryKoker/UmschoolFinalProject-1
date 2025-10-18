@@ -1,2 +1,2 @@
 from telebot import *
-from Handlers.GeneralHandlers import *
+from main import *
