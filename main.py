@@ -1,16 +1,14 @@
 import os
 import logging
 from dotenv import load_dotenv
-
 from telebot import *
-
 from db_adapter import *
 from Handlers.__init__ import register_handlers
 from init_bot import create_bot
 
 load_dotenv()
 
-telebot.logger.setLevel(logging.ERROR) #Outputs messages to console.
+telebot.logger.setLevel(logging.INFO) #Outputs messages to console.
 
 if __name__ == "__main__":
     create_tables_in_db()
