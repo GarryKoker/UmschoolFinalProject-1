@@ -9,6 +9,7 @@ from sqlalchemy import TIMESTAMP
 import os
 from dotenv import load_dotenv
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy import select
 
 load_dotenv()
 
@@ -51,8 +52,8 @@ class Users(Base):
     
     Id: Mapped[int] = mapped_column(primary_key=True)
     Tg_user_id: Mapped[int] = mapped_column(int())
-    Created_at: Mapped[TIMESTAMP] = mapped_column(TIMESTAMP())
     Role_id: Mapped[int] = mapped_column(ForeignKey(Roles.Id))
+    Created_at: Mapped[TIMESTAMP] = mapped_column(TIMESTAMP())
 
 class Users_statistic(Base):
     __tablename__ = "Users_statistic"
@@ -67,6 +68,30 @@ def create_tables_in_db() -> None:
     Base.metadata.create_all(engine)
     
 Session = sessionmaker(engine)
+
+def add_new_user(Tg_user_id: int, Role_id: int, Created_at: str) -> None:
+    if not(check_smth_on_exists(tableName=Users, columnName=Users.Tg_user_id, id=Tg_user_id)):
+        newUser = Users(Tg_user_id=Tg_user_id, Role_id=Role_id, Created_at=Created_at)
+        with Session() as session:
+            try:
+                session.add(newUser)
+            except:
+                session.rollback()
+                raise
+            else:
+                session.commit()
+
+def check_smth_on_exists(tableName, columnName, id) -> bool:
+    with Session() as session:
+        try:
+            statement = select(tableName).where(tableName.columnName == id)
+            db_object = session.scalars(statement).one()
+            
+            if db_object:
+                return True
+        except:
+            session.rollback()
+            raise
 
 with Session() as session:
     pass
