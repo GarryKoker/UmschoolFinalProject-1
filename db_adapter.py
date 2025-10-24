@@ -3,7 +3,6 @@ from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
 from sqlalchemy import String
 from sqlalchemy import ForeignKey
-from sqlalchemy import Optional
 from sqlalchemy import create_engine
 from sqlalchemy import TIMESTAMP
 import os

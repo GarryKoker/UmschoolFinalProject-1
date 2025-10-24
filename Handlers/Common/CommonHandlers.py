@@ -15,8 +15,13 @@ def register_handlers(bot):
 def register_handlers(bot):
     @bot.message_handler(commands=["Просмотр личной статистики"])
     def command_handler(message):
-        check_own_statistic(get_user_from_db(message.from_user.id))
-        bot.send_message(message.chat.id, "123")
+        result = check_own_statistic(get_user_from_db(message.from_user.id))
+        
+        number = 1
+        for i in result:
+            bot.send_message(message.chat.id, f"{number} {i}")
+            number += 1
+            
 
 def register_handlers(bot):
     @bot.message_handler(commands=["Прохождение опроса"])
