@@ -94,7 +94,6 @@ def check_smth_on_exists(table, columnId, outerId) -> bool:
         try:
             statement = select(table).where(columnId == outerId)
             db_object = session.scalars(statement).first()
-            
             if db_object:
                 return True
         except Exception as e:
@@ -113,7 +112,7 @@ def add_user_to_db(user: Users) -> None:
 def get_user_from_db(tg_id: int):
     with Session() as session:
         statement = session.select(Users).where(Users.Tg_user_id == tg_id)
-        result = session.scalars(statement).first()
+        result = session.scalars(statement).one()
         return result
 
 def check_own_statistic(user: Users):
@@ -121,17 +120,15 @@ def check_own_statistic(user: Users):
         try:
             statement = select(Users_statistic).where(user.id == Users_statistic.User_id)
             db_objects = session.scalars(statement).all()
-            
-            number = 0
+            number = 1
             result = []
             for i in db_objects:
-                number += 1
-                Question = select(Questions).where(i[2] == Questions.id)
+                Question = select(Questions).where(i.Question_id == Questions.id)
                 Question = session.scalars(Question).one()
-                Choice = select(Choices).where(i[3] == Choices.id)
+                Choice = select(Choices).where(i.Choice_id == Choices.id)
                 Choice = session.scalars(Choice).one()
-                result.append([Question.Question_text, Choice.Choice_text])
-                
+                result.append([number, Question.Question_text, Choice.Choice_text])
+                number += 1
         except:
             session.rollback()
         else:
