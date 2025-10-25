@@ -2,7 +2,7 @@ import os
 import logging
 from dotenv import load_dotenv
 from telebot import *
-from db_adapter import *
+from db.db_adapter import *
 from Handlers.__init__ import register_handlers
 from init_bot import create_bot
 
