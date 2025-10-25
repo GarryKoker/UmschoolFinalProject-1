@@ -1,8 +1,8 @@
-from Handlers.Admin import AdminHandlers
-from Handlers.Common import CommonHandlers
-from Handlers.Owner import OwnerHandlers
-from Handlers.Question_maker import Question_makerHandlers
-from Handlers import GeneralHandlers
+from handlers.admin import AdminHandlers
+from handlers.common import CommonHandlers
+from handlers.owner import OwnerHandlers
+from handlers.question_maker import Question_makerHandlers
+from handlers import GeneralHandlers
 
 def register_handlers(bot):
     AdminHandlers.register_handlers(bot)
