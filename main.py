@@ -6,8 +6,8 @@ import os
 import logging
 from telebot import *
 from db.db_adapter import *
-from handlers.__init__ import register_handlers
-from init_bot import create_bot
+from bot.handlers.__init__ import register_handlers
+from bot.init_bot import create_bot
 
 telebot.logger.setLevel(logging.INFO) #Outputs messages to console.
 

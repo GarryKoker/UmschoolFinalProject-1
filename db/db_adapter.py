@@ -9,10 +9,13 @@ import os
 from dotenv import load_dotenv
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import select
+from sqlalchemy import Integer
 
 load_dotenv()
 
 engine = create_engine(os.getenv("DATABASE_URL"), echo=True)
+
+Session = sessionmaker(engine)
 
 class Base(DeclarativeBase):
     pass
@@ -20,39 +23,39 @@ class Base(DeclarativeBase):
 class Choices(Base):
     __tablename__ = "Choices"
     
-    Id: Mapped[int] = mapped_column(primary_key=True)
-    Choice_text: Mapped[str] = mapped_column(String(100))
-    Created_at: Mapped[TIMESTAMP] = mapped_column(TIMESTAMP())
+    id: Mapped[int] = mapped_column(primary_key=True)
+    choice_text: Mapped[str] = mapped_column(String(100))
+    created_at: Mapped[TIMESTAMP] = mapped_column(TIMESTAMP())
     
 class Questions(Base):
     __tablename__ = "Questions"
     
-    Id: Mapped[int] = mapped_column(primary_key=True)
-    Question_text: Mapped[str] = mapped_column(String(500))
-    Created_at: Mapped[TIMESTAMP] = mapped_column(TIMESTAMP())
+    id: Mapped[int] = mapped_column(primary_key=True)   
+    question_text: Mapped[str] = mapped_column(String(500))
+    created_at: Mapped[TIMESTAMP] = mapped_column(TIMESTAMP())
 
 class Question_choice(Base):
     __tablename__ = "Question_choices"
 
-    Id: Mapped[int] = mapped_column(primary_key=True)
-    Question_id: Mapped[int] = mapped_column(ForeignKey(Questions.Id))
-    Choice_id: Mapped[int] = mapped_column(ForeignKey(Choices.Id))
-    Created_at: Mapped[TIMESTAMP] = mapped_column(TIMESTAMP())
+    id: Mapped[int] = mapped_column(primary_key=True)
+    question_id: Mapped[int] = mapped_column(ForeignKey(Questions.Id))
+    choice_id: Mapped[int] = mapped_column(ForeignKey(Choices.Id))
+    created_at: Mapped[TIMESTAMP] = mapped_column(TIMESTAMP())
 
 class Roles(Base):
     __tablename__ = "Roles"
 
-    Id: Mapped[int] = mapped_column(primary_key=True)
-    Name: Mapped[str] = mapped_column(String(100))
-    Created_at: Mapped[TIMESTAMP] = mapped_column(TIMESTAMP())
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(100))
+    created_at: Mapped[TIMESTAMP] = mapped_column(TIMESTAMP())
 
 class Users(Base):
     __tablename__ = "Users"
 
-    Id: Mapped[int] = mapped_column(primary_key=True)
-    Tg_user_id: Mapped[int] = mapped_column(int())
-    Role_id: Mapped[int] = mapped_column(ForeignKey("Roles.Id"))
-    Created_at: Mapped[TIMESTAMP] = mapped_column(TIMESTAMP())
+    id: Mapped[int] = mapped_column(primary_key=True)
+    tg_user_id: Mapped[int] = mapped_column(Integer())
+    role_id: Mapped[int] = mapped_column(ForeignKey("Roles.Id"))
+    created_at: Mapped[TIMESTAMP] = mapped_column(TIMESTAMP())
 
 class Users_statistic(Base):
     def __init__(self):
@@ -60,14 +63,14 @@ class Users_statistic(Base):
 
     __tablename__ = "Users_statistic"
 
-    Id: Mapped[int] = mapped_column(primary_key=True)
-    User_id: Mapped[int] = mapped_column(ForeignKey("Users.Id"))
-    Question_id: Mapped[int] = mapped_column(ForeignKey("Questions.Id"))
-    Choice_id: Mapped[int] = mapped_column(ForeignKey("Choices.Id"))
-    Created_at: Mapped[int] = mapped_column(ForeignKey("TIMESTAMP()"))
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("Users.Id"))
+    question_id: Mapped[int] = mapped_column(ForeignKey("Questions.Id"))
+    choice_id: Mapped[int] = mapped_column(ForeignKey("Choices.Id"))
+    created_at: Mapped[int] = mapped_column(ForeignKey("TIMESTAMP()"))
 
     def __repr__(self) -> str:
-        return f"Users({self.Id}, {self.User_id}, {self.Question_id}, {self.Choice_id}, {self.Created_at})"
+        return f"Users({self.id}, {self.user_id}, {self.question_id}, {self.choice_id}, {self.created_at})"
 
     def __str__(self) -> str:
         return f""
@@ -75,24 +78,22 @@ class Users_statistic(Base):
 def create_tables_in_db() -> None:
     Base.metadata.create_all(engine)
 
-Session = sessionmaker(engine)
-
-def add_new_user(Tg_user_id: int, Role_id: int, Created_at: str) -> None:
-    if not(check_smth_on_exists(tableName=Users, columnName=Users.Tg_user_id, id=Tg_user_id)):
-        newUser = Users(Tg_user_id=Tg_user_id, Role_id=Role_id, Created_at=Created_at)
+def add_new_user(tg_user_id: int, role_id: int, created_at: str) -> None:
+    if not(check_smth_on_exists(tableName=Users, columnName=Users.tg_user_id, id=tg_user_id)):
+        new_user = Users(tg_user_id=tg_user_id, role_id=role_id, created_at=created_at)
         with Session() as session:
             try:
-                session.add(newUser)
+                session.add(new_user)
             except:
                 session.rollback()
                 raise
             else:
                 session.commit()
 
-def check_smth_on_exists(table, columnId, outerId) -> bool:
+def check_smth_on_exists(table, column_id, outer_id) -> bool:
     with Session() as session:
         try:
-            statement = select(table).where(columnId == outerId)
+            statement = select(table).where(column_id == outer_id)
             db_object = session.scalars(statement).first()
             if db_object:
                 return True
@@ -109,30 +110,35 @@ def add_user_to_db(user: Users) -> None:
         else:
             session.commit()
 
-def get_user_from_db(tg_id: int):
+def get_user_from_db(tg_id: int) -> Users:
     with Session() as session:
-        statement = session.select(Users).where(Users.Tg_user_id == tg_id)
+        statement = session.select(Users).where(Users.tg_user_id == tg_id)
         result = session.scalars(statement).one()
         return result
 
-def check_own_statistic(user: Users):
+def check_own_statistic(user: Users) -> Users_statistic:
     with Session() as session:
         try:
-            statement = select(Users_statistic).where(user.id == Users_statistic.User_id)
+            statement = select(Users_statistic).where(user.id == Users_statistic.user_id)
             db_objects = session.scalars(statement).all()
-            number = 1
             result = []
             for i in db_objects:
-                Question = select(Questions).where(i.Question_id == Questions.id)
+                Question = select(Questions).where(i.question_id == Questions.id)
                 Question = session.scalars(Question).one()
-                Choice = select(Choices).where(i.Choice_id == Choices.id)
+                Choice = select(Choices).where(i.choice_id == Choices.id)
                 Choice = session.scalars(Choice).one()
-                result.append([number, Question.Question_text, Choice.Choice_text])
-                number += 1
+                result.append([Question.question_text, Choice.choice_text])
         except:
             session.rollback()
         else:
             return result
 
-with Session() as session:
-    pass
+def take_the_survey(user: Users) -> list:
+    question_subquery = select(Users_statistic).where(user.id == Users_statistic.user_id)
+    question_mainquery = select(Questions).where(Questions.id.not_(question_subquery))
+    with Session() as session:
+        question = session.scalars(question_mainquery).first()
+    choices_mainquery = select(Choices).where(question.id == Choices.id)   
+    with Session() as session:
+        choices = session.scalars(choices_mainquery).all()
+    return [question, choices]
