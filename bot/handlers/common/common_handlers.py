@@ -21,7 +21,7 @@ def register_handlers(bot):
         message = ""
         number = 1
         for i in result:
-            message += f"{number}. {i.question.text}\n"
+            message += f"{number}. {i.survey.text}\n"
             number += 1
         bot.send_message(message.chat.id, message)
 
@@ -29,7 +29,7 @@ def register_handlers(bot):
     @bot.message_handler(commands=["Прохождение опроса"])
     def command_handler(message):
         result = take_the_survey(get_user_from_db(message.from_user.id))
-        question_text = result[0].question_text
+        survey_text = result[0].survey_text
         inline_keyboard_markup = telebot.types.InlineKeyboardMarkup()
         inline_buttons = []
         for i in result[1]:
@@ -37,4 +37,4 @@ def register_handlers(bot):
         
         for i in inline_buttons():
             inline_keyboard_markup.add(i)
-        bot.send_message(f"{question_text}", reply_markup=inline_keyboard_markup)
+        bot.send_message(f"{survey_text}", reply_markup=inline_keyboard_markup)
