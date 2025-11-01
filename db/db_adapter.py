@@ -186,3 +186,26 @@ def check_general_statistic() -> dict:
             session.rollback()
         else:
             return dictionary
+
+def check_survey_makers() -> list:
+    with Session() as session:
+        try:
+            query = select(Users).where(Users.role_id.in_([2]))
+            users = session.scalars(query).all()
+        except Exception as e:
+            print(e)
+            session.rollback()
+        else:
+            return users
+
+def delete_survey(survey_id: int) -> None:
+    with Session() as session:
+        try:
+            survey_query = select(Surveys).where(Surveys.id == survey_id)
+            survey = session.scalars(survey_query).one()
+            session.delete(survey)
+        except Exception as e:
+            print(e)
+            session.rollback()
+        else:
+            session.commit()

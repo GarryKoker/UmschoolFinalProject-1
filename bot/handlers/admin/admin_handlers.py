@@ -1,4 +1,6 @@
-from db import (check_general_statistic)
+from db import (check_general_statistic,
+                check_survey_makers,
+                delete_survey)
 def register_handlers(bot):
     @bot.message_handler(commands=["Посмотреть общую статистику"])
     def command_handler(message):
@@ -17,9 +19,13 @@ def register_handlers(bot):
 def register_handlers(bot):
     @bot.message_handler(commands=["Квешн-мейкеры"])
     def command_handler(message):
-        pass
+        survey_makers = check_survey_makers()
+        message = "Список квешн-мейкеров:\n"
+        for i in survey_makers:
+            message += f"тг id: {i.tg_id}, роль: {i.role_id}\n"
+        bot.send_message(message.chat.id, message)
 
 def register_handlers(bot):
     @bot.message_handler(commands=["Удалить опрос"])
     def command_handler(message):
-        pass
+        
