@@ -1,24 +1,35 @@
-version: '3.8'
-
 services:
+  db:
+    image: postgres:14
+    restart: always
+    env_file:
+      - ../.env
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-secret_password}
+      POSTGRES_DB: ${POSTGRES_DB:-telegram_bot}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-telegram_bot} || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   bot:
-    build: .
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    restart: unless-stopped
+    env_file:
+      - ../.env
     depends_on:
       - db
-    env_file:
-      - .env
-    restart: always
     volumes:
-      - .:/app
-
-  db:
-    image: postgres:15-alpine
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    env_file:
-      - .env
-    ports:
-      - "5432:5432"
+      - ..:/app
+    command: ["bash", "-c", "until nc -z db ${POSTGRES_PORT:-5432}; do echo 'waiting for db'; sleep 1; done; python main.py"]
 
 volumes:
-  postgres_data:
+  db_data:
