@@ -209,3 +209,14 @@ def delete_survey(survey_id: int) -> None:
             session.rollback()
         else:
             session.commit()
+
+def get_personal() -> list:
+    with Session() as session:
+        try:
+            query = select(Users).where(Users.role_id.in_([2, 3, 4]))
+            users = session.scalars(query).all()
+        except Exception as e:
+            print(e)
+            session.rollback()
+        else:
+            return users

@@ -5,9 +5,13 @@ load_dotenv()
 import os
 import logging
 from telebot import *
+from telebot.handler_backends import State, StateGroup
 from db.db_adapter import *
 from bot.handlers.__init__ import register_handlers
 from bot.init_bot import create_bot
+
+class States(StateGroup):
+    WAITING_SURVEY_ID = State()
 
 telebot.logger.setLevel(logging.INFO) #Outputs messages to console.
 

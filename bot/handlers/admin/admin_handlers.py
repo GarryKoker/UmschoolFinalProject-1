@@ -1,6 +1,8 @@
 from db import (check_general_statistic,
                 check_survey_makers,
                 delete_survey)
+from main import States
+
 def register_handlers(bot):
     @bot.message_handler(commands=["Посмотреть общую статистику"])
     def command_handler(message):
@@ -28,4 +30,17 @@ def register_handlers(bot):
 def register_handlers(bot):
     @bot.message_handler(commands=["Удалить опрос"])
     def command_handler(message):
-        
+        bot.set_state(message.from_user.id, States.WAITING_SURVEY_ID, message.chat.id)
+        bot.send_message(message.chat.id, "Введите id опроса, который хотите удалить:")
+
+def register_handlers(bot):
+    @bot.message_handler(state=States.WAITING_SURVEY_ID)
+    def state_handler(message):
+        try:
+            survey_id = int(message.text)
+        except ValueError:
+            bot.send_message(message.chat.id, "Пожалуйста, введите корректный числовой id опроса.")
+            return
+        delete_survey(survey_id)
+        bot.send_message(message.chat.id, f"Опрос с id {survey_id} был удалён.")
+        bot.delete_state(message.from_user.id, message.chat.id)
